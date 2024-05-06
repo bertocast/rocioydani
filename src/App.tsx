@@ -5,8 +5,21 @@ import BgPictureMd from "./assets/bg_md.webp";
 
 import Home from "./views/Home";
 import Navbar from "./components/Navbar";
+import Ceremony from "./views/Ceremony";
+import Celebration from "./views/Celebration";
+import Accomodation from "./views/Accomodation";
+import Transport from "./views/Transport";
+import Gift from "./views/Gift";
+import RSVP from "./views/RSVP";
 
-const routes = [
+interface CustomRoute {
+  path: string;
+  name: string;
+  title?: string;
+  component?: JSX.Element;
+}
+
+let routes: CustomRoute[] = [
   {
     path: "/",
     name: "Home",
@@ -15,24 +28,39 @@ const routes = [
   {
     path: "/ceremony",
     name: "Ceremonia",
+    component: <Ceremony />,
   },
   {
     path: "/celebration",
     name: "Celebración",
+    component: <Celebration />,
   },
   {
-    path: "/hotels",
-    name: "Hoteles",
+    path: "/accomodation",
+    name: "Alojamiento",
+    component: <Accomodation />,
   },
   {
     path: "/transport",
     name: "Transporte",
+    component: <Transport />,
   },
   {
     path: "/gift",
     name: "Regalo",
+    component: <Gift />,
+  },
+  {
+    path: "rsvp",
+    name: "Confirmar asistencia",
+    component: <RSVP />,
   },
 ];
+
+routes = routes.map((route: CustomRoute) => ({
+  ...route,
+  component: route.component || <Home routes={routes} />,
+}));
 
 function App() {
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -41,6 +69,14 @@ function App() {
   const getTitle = () => {
     const route = routes.find((route) => route.path === location.pathname);
     return route ? route.title || route.name : "R&D";
+  };
+
+  const getDaysLeft = () => {
+    const weddingDate = new Date("2024-11-30");
+    const today = new Date();
+    const diffTime = weddingDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
   };
 
   return (
@@ -100,7 +136,7 @@ function App() {
           <source srcSet="https://media-api.xogrp.com/images/55265c51-94d8-4b42-8ba4-be84bfe91752~rt_auto-rs_480.h?ordering=explicit" />
           <img alt="" src={BgPictureMd} className="h-full" />
         </picture>
-        <header className="pt-0 px-[4%] pb-[10px] md:hidden">
+        <header className="pt-0 px-[4%] pb-[10px] md:hidden text-center">
           <h1 className="pb-2.5 uppercase text-6xl text-gray-900 my-4 leading-[1] pt-[140px] max-w-[600px] text-[43.5px] text-center">
             Rocio & Dani
           </h1>
@@ -110,16 +146,22 @@ function App() {
           >
             30 de Novimebre de 2024 • Madrid
           </div>
+          <div className="leading-1 my-2 font-cormorant tracking-wider text-gray-900 sm:text-lg font-medium uppercase text-[calc(20px * 0.75)]">
+            ¡Quedan {getDaysLeft()} días!
+          </div>
         </header>
         <picture className="max-w-full max-h-32 mb-5 w-full hidden md:block">
           <img loading="eager" alt="" src={BgPicture} className="w-full" />
         </picture>
-        <header className="pt-0 px-[4%] pb-[10px] hidden md:block">
+        <header className="pt-0 px-[4%] pb-[10px] hidden md:block text-center">
           <h1 className="pb-[15px] pt-[280px] uppercase text-6xl text-gray-900 my-4 leading-[1]">
             Rocio & Dani
           </h1>
           <div className="leading-[1] my-2 text-gray-900 text-xl font-normal uppercase">
             30 de Noviembre de 2024 • Madrid
+          </div>
+          <div className="leading-1 my-2 font-cormorant tracking-wider text-gray-900 text-lg font-medium uppercase">
+            ¡Quedan {getDaysLeft()} días!
           </div>
         </header>
         <div
@@ -148,7 +190,13 @@ function App() {
         />
 
         <Routes>
-          <Route path="/" element={<Home routes={routes} />} />
+          {routes.map((route) => (
+            <Route
+              key={route.path}
+              path={route.path}
+              element={route.component}
+            />
+          ))}
         </Routes>
       </div>
       <footer className="items-center flex flex-col justify-end mt-auto relative w-full">
